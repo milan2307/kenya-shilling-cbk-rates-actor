@@ -1,0 +1,165 @@
+{
+  "title": "Kenya Shilling CBK exchange rates",
+  "description": "Pick a mode. Every dataset row is one charged result, so a range of all 21 currencies is about 21 rows per business day; maxRows caps the run.",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "mode": {
+      "title": "Mode",
+      "type": "string",
+      "editor": "select",
+      "enum": [
+        "latest",
+        "range",
+        "convert"
+      ],
+      "enumTitles": [
+        "Latest / one date (one row per currency)",
+        "Date range (every business day)",
+        "Convert an amount"
+      ],
+      "default": "latest",
+      "description": "latest: rates for one date (default today; weekends and holidays fall back to the last published day). range: every published business day between two dates. convert: one row converting an amount through KES."
+    },
+    "currencies": {
+      "title": "Currencies",
+      "type": "array",
+      "editor": "select",
+      "items": {
+        "type": "string",
+        "enum": [
+          "USD",
+          "GBP",
+          "EUR",
+          "ZAR",
+          "UGX",
+          "TZS",
+          "RWF",
+          "BIF",
+          "AED",
+          "CAD",
+          "CHF",
+          "JPY",
+          "SEK",
+          "NOK",
+          "DKK",
+          "INR",
+          "HKD",
+          "SGD",
+          "SAR",
+          "CNY",
+          "AUD"
+        ]
+      },
+      "description": "Leave empty for all 21 currencies CBK publishes. Used by latest and range.",
+      "prefill": [
+        "USD",
+        "EUR",
+        "GBP"
+      ]
+    },
+    "date": {
+      "title": "Date (latest / convert)",
+      "type": "string",
+      "editor": "datepicker",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "YYYY-MM-DD. Default: today in Nairobi."
+    },
+    "startDate": {
+      "title": "Start date (range)",
+      "type": "string",
+      "editor": "datepicker",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "YYYY-MM-DD, from 2004-11-02. Required in range mode."
+    },
+    "endDate": {
+      "title": "End date (range)",
+      "type": "string",
+      "editor": "datepicker",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "YYYY-MM-DD. Default: today."
+    },
+    "amount": {
+      "title": "Amount (convert)",
+      "type": "integer",
+      "editor": "number",
+      "minimum": 0,
+      "description": "Whole amount to convert, e.g. 1000. Required in convert mode."
+    },
+    "fromCurrency": {
+      "title": "From currency (convert)",
+      "type": "string",
+      "editor": "select",
+      "enum": [
+        "KES",
+        "USD",
+        "GBP",
+        "EUR",
+        "ZAR",
+        "UGX",
+        "TZS",
+        "RWF",
+        "BIF",
+        "AED",
+        "CAD",
+        "CHF",
+        "JPY",
+        "SEK",
+        "NOK",
+        "DKK",
+        "INR",
+        "HKD",
+        "SGD",
+        "SAR",
+        "CNY",
+        "AUD"
+      ],
+      "description": "Currency of the amount (KES or one of the 21). Required in convert mode."
+    },
+    "toCurrency": {
+      "title": "To currency (convert)",
+      "type": "string",
+      "editor": "select",
+      "enum": [
+        "KES",
+        "USD",
+        "GBP",
+        "EUR",
+        "ZAR",
+        "UGX",
+        "TZS",
+        "RWF",
+        "BIF",
+        "AED",
+        "CAD",
+        "CHF",
+        "JPY",
+        "SEK",
+        "NOK",
+        "DKK",
+        "INR",
+        "HKD",
+        "SGD",
+        "SAR",
+        "CNY",
+        "AUD"
+      ],
+      "description": "Currency to convert into. Required in convert mode."
+    },
+    "maxRows": {
+      "title": "Max rows",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 200000,
+      "default": 10000,
+      "description": "Hard cap on rows saved (and charged) in this run."
+    },
+    "fetchLatestFromCbk": {
+      "title": "Fetch newest days from CBK",
+      "type": "boolean",
+      "default": true,
+      "description": "Checks CBK for business days newer than the bundled history. Turn off for a fully offline, reproducible run."
+    }
+  },
+  "required": []
+}

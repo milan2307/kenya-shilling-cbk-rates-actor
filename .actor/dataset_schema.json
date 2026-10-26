@@ -1,0 +1,130 @@
+{
+  "actorSpecification": 1,
+  "fields": {},
+  "views": {
+    "rates": {
+      "title": "Rates",
+      "transformation": {
+        "fields": [
+          "date",
+          "currency",
+          "currencyName",
+          "quote",
+          "mean",
+          "buy",
+          "sell",
+          "kesPerUnit",
+          "unitsPerKes",
+          "isFallback",
+          "fallbackReason",
+          "origin"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "date": {
+            "label": "Rate date",
+            "format": "date"
+          },
+          "currency": {
+            "label": "Currency",
+            "format": "text"
+          },
+          "currencyName": {
+            "label": "Name",
+            "format": "text"
+          },
+          "quote": {
+            "label": "CBK quote",
+            "format": "text"
+          },
+          "mean": {
+            "label": "Mean",
+            "format": "number"
+          },
+          "buy": {
+            "label": "Buy",
+            "format": "number"
+          },
+          "sell": {
+            "label": "Sell",
+            "format": "number"
+          },
+          "kesPerUnit": {
+            "label": "KES per 1 unit",
+            "format": "number"
+          },
+          "unitsPerKes": {
+            "label": "Units per 1 KES",
+            "format": "number"
+          },
+          "isFallback": {
+            "label": "Fallback",
+            "format": "boolean"
+          },
+          "fallbackReason": {
+            "label": "Why",
+            "format": "text"
+          },
+          "origin": {
+            "label": "Origin",
+            "format": "text"
+          }
+        }
+      }
+    },
+    "conversions": {
+      "title": "Conversions",
+      "transformation": {
+        "fields": [
+          "date",
+          "amount",
+          "fromCurrency",
+          "toCurrency",
+          "result",
+          "fromRateDate",
+          "toRateDate",
+          "isFallback"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "date": {
+            "label": "Date",
+            "format": "date"
+          },
+          "amount": {
+            "label": "Amount",
+            "format": "number"
+          },
+          "fromCurrency": {
+            "label": "From",
+            "format": "text"
+          },
+          "toCurrency": {
+            "label": "To",
+            "format": "text"
+          },
+          "result": {
+            "label": "Result",
+            "format": "number"
+          },
+          "fromRateDate": {
+            "label": "From rate date",
+            "format": "date"
+          },
+          "toRateDate": {
+            "label": "To rate date",
+            "format": "date"
+          },
+          "isFallback": {
+            "label": "Fallback",
+            "format": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

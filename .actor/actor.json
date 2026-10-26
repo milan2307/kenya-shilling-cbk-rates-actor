@@ -1,0 +1,17 @@
+{
+  "actorSpecification": 1,
+  "name": "kenya-shilling-cbk-exchange-rates",
+  "title": "Kenya Shilling Exchange Rates – CBK Official (21 currencies, 2004 to today)",
+  "description": "Official Central Bank of Kenya mean, buy and sell rates for KES against 21 currencies, every business day since Nov 2004. Get today's rate, a date range, or a conversion. Clean JSON, ready for agents, spreadsheets and accounting tools.",
+  "version": "0.1",
+  "buildTag": "latest",
+  "minMemoryMbytes": 256,
+  "maxMemoryMbytes": 1024,
+  "defaultMemoryMbytes": 512,
+  "input": "./input_schema.json",
+  "storages": {
+    "dataset": "./dataset_schema.json"
+  },
+  "dockerfile": "./Dockerfile",
+  "readme": "../README.md"
+}

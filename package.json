@@ -1,0 +1,29 @@
+{
+  "name": "kenya-shilling-cbk-rates-actor",
+  "version": "0.1.0",
+  "description": "Apify Actor: official Central Bank of Kenya (CBK) KES exchange rates for 21 currencies, every business day since Nov 2004.",
+  "license": "MIT",
+  "author": "LamuLabs",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node dist/src/main.js",
+    "start:dev": "tsx src/main.ts",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "snapshot": "tsx scripts/fx-snapshot.ts"
+  },
+  "dependencies": {
+    "apify": "^3.7.2",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}
