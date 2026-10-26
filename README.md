@@ -9,6 +9,7 @@ Official Central Bank of Kenya mean, buy and sell rates for KES against 21 curre
 - **Buy and sell where CBK published them.** CBK published mean, buy and sell up to 4 January 2024. From 5 January 2024 it publishes the mean only, so `buy` and `sell` are `null` from then on.
 - **21 currencies:** USD, GBP, EUR, ZAR, UGX, TZS, RWF, BIF, AED, CAD, CHF, JPY, SEK, NOK, DKK, INR, HKD, SGD, SAR, CNY, AUD.
 - **No guessing.** Weekends and public holidays are never filled in a range. In `latest` mode a weekend or holiday returns the last published day, with `isFallback: true` and a plain reason. A rate more than 10 days old is never served.
+- **One consistent date.** Some mornings CBK posts the day's table in pieces. Until all of the day's currencies are online, `latest` and `convert` return the previous complete day for every currency, and say so in `fallbackReason`. `range` leaves the unfinished day out, so you are never charged for half a day.
 - **Cleaned.** CBK's tables carry a few keying errors, such as a value entered under the wrong currency for one day. 119 such points are withheld rather than passed on, and stretches before November 2004, where the source tables are misaligned, are left out.
 - **Quote conventions handled.** CBK quotes JPY per 100, and the East African pairs (UGX, TZS, RWF, BIF) as units per 1 KES. Every row keeps CBK's own number (`mean`) and adds `kesPerUnit` and `unitsPerKes`, so you never have to remember which is which.
 
@@ -16,7 +17,7 @@ Official Central Bank of Kenya mean, buy and sell rates for KES against 21 curre
 
 | Mode | Input | Rows |
 | --- | --- | --- |
-| `latest` (default) | optional `date` (default today in Nairobi), optional `currencies` | one per currency (21 if you leave `currencies` empty) |
+| `latest` (default) | optional `date` (default today in Nairobi), optional `currencies` | one per currency: 21 with `{}` or an empty `currencies` list |
 | `range` | `startDate`, optional `endDate` (default today), optional `currencies` | one per currency per published business day |
 | `convert` | `amount`, `fromCurrency`, `toCurrency` (KES or any of the 21), optional `date` | one |
 

@@ -3,7 +3,7 @@
  * Each function yields dataset rows; main.ts decides how many to push and charge.
  */
 import { currencyInfo, CURRENCY_CODES, kesPerUnit, quoteText, type CurrencyCode } from "../fx/currencies.js";
-import { weekdayName } from "../fx/dates.js";
+import { addDays, weekdayName } from "../fx/dates.js";
 import type { RateStore, StoredRate } from "../fx/rate-store.js";
 import type { ActorInput } from "../input.js";
 
@@ -54,13 +54,39 @@ export function checkDate(date: string, store: RateStore): void {
   if (date < store.firstDate) throw new RateNotAvailableError(`coverage starts ${store.firstDate}`);
 }
 
+/** A day CBK has only partly published so far (it posts its table in pieces some mornings). */
+export interface IncompleteDay {
+  date: string;
+  published: number;
+  expected: number;
+}
+
+/**
+ * The date to serve for a request on `date`: the newest published day, unless that day is today
+ * (Nairobi), was fetched live, and covers fewer currencies than the published day before it.
+ * Past days are final, so a currency CBK stops publishing can never freeze the whole series.
+ */
+export function completeAsOf(date: string, store: RateStore): { asOf: string; incomplete?: IncompleteDay } {
+  const newest = store.newestPublishedOnOrBefore(date);
+  if (!newest || newest <= store.snapshotLastDate || newest !== store.today()) return { asOf: date };
+  const previous = store.newestPublishedOnOrBefore(addDays(newest, -1));
+  if (!previous) return { asOf: date };
+  const published = store.coverageOn(newest);
+  const expected = store.coverageOn(previous);
+  return published < expected ? { asOf: previous, incomplete: { date: newest, published, expected } } : { asOf: date };
+}
+
+const incompleteReason = (d: IncompleteDay) =>
+  `CBK has published only ${d.published} of ${d.expected} currencies for ${d.date} so far; last complete day returned`;
+
 const codesOf = (input: ActorInput): CurrencyCode[] => input.currencies?.length ? input.currencies : CURRENCY_CODES;
 
 /** Mode "latest": one row per currency for `date` (default today), falling back to the last published day. */
 export function* latestRows(input: ActorInput, store: RateStore): Generator<RateRow> {
   const date = input.date ?? store.today();
   checkDate(date, store);
-  for (const code of codesOf(input)) yield rateOn(code, date, store);
+  const { asOf, incomplete } = completeAsOf(date, store);
+  for (const code of codesOf(input)) yield rateOn(code, date, store, asOf, incomplete);
 }
 
 /** Mode "range": every published business day per currency in [startDate, endDate]. No weekend filling. */
@@ -69,8 +95,10 @@ export function* rangeRows(input: ActorInput, store: RateStore): Generator<RateR
   const to = input.endDate ?? store.today();
   checkDate(from, store);
   checkDate(to, store);
+  // Rows of a day CBK is still filling in are left out (and so never charged); they appear once complete.
+  const { incomplete } = completeAsOf(to, store);
   for (const code of codesOf(input)) {
-    for (const r of store.range(code, from, to)) yield toRow(code, r, null, null);
+    for (const r of store.range(code, from, to)) if (r.date !== incomplete?.date) yield toRow(code, r, null, null);
   }
 }
 
@@ -78,9 +106,10 @@ export function* rangeRows(input: ActorInput, store: RateStore): Generator<RateR
 export function convertRow(input: ActorInput, store: RateStore): ConversionRow {
   const date = input.date ?? store.today();
   checkDate(date, store);
+  const { asOf, incomplete } = completeAsOf(date, store);
   const leg = (c: CurrencyCode | "KES") => {
     if (c === "KES") return { kpu: 1, rateDate: null, fallback: false };
-    const r = rateOn(c, date, store);
+    const r = rateOn(c, date, store, asOf, incomplete);
     return { kpu: r.kesPerUnit, rateDate: r.date, fallback: r.isFallback };
   };
   const from = leg(input.fromCurrency!);
@@ -102,14 +131,16 @@ export function convertRow(input: ActorInput, store: RateStore): ConversionRow {
   };
 }
 
-function rateOn(code: CurrencyCode, date: string, store: RateStore): RateRow {
-  const hit = store.lookup(code, date, MAX_FALLBACK_DAYS);
+/** Rate for `code` as requested on `date`, served from `asOf` (the last complete day). */
+function rateOn(code: CurrencyCode, date: string, store: RateStore, asOf: string, incomplete?: IncompleteDay): RateRow {
+  const hit = store.lookup(code, asOf, MAX_FALLBACK_DAYS);
   if (!hit.found) {
     if (hit.reason === "before_coverage") throw new RateNotAvailableError(`no CBK rate for ${code} on or before ${date}`);
     throw new RateNotAvailableError(`newest ${code} rate is ${hit.newestDate}; CBK could not be reached for newer data`);
   }
-  const fallback = hit.rate.date !== date;
-  return toRow(code, hit.rate, date, fallback ? fallbackReason(date, hit.withheldOnRequestedDate, store) : null);
+  if (hit.rate.date === date) return toRow(code, hit.rate, date, null);
+  const reason = incomplete ? incompleteReason(incomplete) : fallbackReason(date, hit.withheldOnRequestedDate, store);
+  return toRow(code, hit.rate, date, reason);
 }
 
 function toRow(code: CurrencyCode, r: StoredRate, requestedDate: string | null, fallbackReason: string | null): RateRow {

@@ -51,12 +51,7 @@
           "AUD"
         ]
       },
-      "description": "Leave empty for all 21 currencies CBK publishes. Used by latest and range.",
-      "prefill": [
-        "USD",
-        "EUR",
-        "GBP"
-      ]
+      "description": "Leave empty for all 21 currencies CBK publishes (the default). Pick some to narrow latest and range runs, e.g. USD, EUR, GBP."
     },
     "date": {
       "title": "Date (latest / convert)",

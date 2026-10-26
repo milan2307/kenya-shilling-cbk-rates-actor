@@ -100,6 +100,26 @@ export class RateStore {
     return out.reverse();
   }
 
+  /** How many currencies have a trusted rate exactly on `date`. */
+  coverageOn(date: string): number {
+    let n = 0;
+    for (const list of this.series.values()) {
+      const i = lastIndexOnOrBefore(list, date);
+      if (i >= 0 && list[i]!.date === date) n++;
+    }
+    return n;
+  }
+
+  /** Newest date on or before `date` on which any currency has a trusted rate. */
+  newestPublishedOnOrBefore(date: string): string | undefined {
+    let best: string | undefined;
+    for (const list of this.series.values()) {
+      const d = list[lastIndexOnOrBefore(list, date)]?.date;
+      if (d && (!best || d > best)) best = d;
+    }
+    return best;
+  }
+
   private async refresh(): Promise<void> {
     const today = this.today();
     const earliest = addDays(today, -(this.opts.maxTailDays - 1));
